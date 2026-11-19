@@ -1,0 +1,24 @@
+name: Build FW APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: unzip -q FW-project.zip -d work
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.4
+          build-root-directory: work/FW
+      - run: gradle assembleDebug --no-daemon
+        working-directory: work/FW
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FW-apk
+          path: work/FW/app/build/outputs/apk/debug/app-debug.apk
